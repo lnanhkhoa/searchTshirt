@@ -6,6 +6,11 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from selenium.webdriver.firefox.webelement import FirefoxWebElement
 from time import sleep
+import requests
+import os
+
+cur_path = os.path.dirname(__file__)
+pathImg = 'img'
 
 # user=input('Enter Email Id:')
 user = "41201696@hcmut.edu.vn"
@@ -42,7 +47,19 @@ def main():
     childs = BrowseResultsContainer.find_elements_by_tag_name('img')
     for child in childs:
         if(child.size.get('width')>450):
-            print (child.get_attribute('src'))
+            getImage (child.get_attribute('src'), child.id + '.jpg')
+
+def getImage(pic_url, name):
+    file = os.path.join(cur_path, pathImg, name)
+    with open(file, 'wb') as handle:
+        response = requests.get(pic_url, stream=True)
+        if not response.ok:
+            print (response)
+        for block in response.iter_content(1024):
+            if not block:
+                break
+            handle.write(block)
+
 
 
 def getBrowseResultsBelowFold():
@@ -55,4 +72,4 @@ if __name__ == '__main__':
     driver.get(
         'https://www.facebook.com/search/str/i%20want%20this%20shirt/stories-keyword/today/date/stories/intersect')
     main()
-    # driver.quit()
+    driver.quit()
