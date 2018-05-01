@@ -2,6 +2,7 @@
 import time
 from selenium import webdriver
 from selenium.webdriver import FirefoxProfile, DesiredCapabilities
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 from selenium.common.exceptions import NoSuchElementException
@@ -82,10 +83,10 @@ class FunctionsWebDriver():
             print (contentpost.text)
             try:
                 # listImageURL = [x for x in child.find_elements_by_tag_name('img')]
-                listImageURL = [x for x in child.find_elements_by_name('theater')]
+                listImageURL = [x for x in child.find_elements_by_css_selector("a[rel='theater']")]
                 for image in listImageURL:
                 #     if image.size.get('width') > 200:
-                        print( image.get_attribute('rel'))
+                        print( image.get_attribute('href'))
                 like = likeCommentContent.find_element_by_class_name('_4arz').text
                 # commentShare = likeCommentContent.find_elements_by_class_name('_36_q')
             except NoSuchElementException as e:

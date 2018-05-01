@@ -19,7 +19,7 @@
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="221">
-              <caret line="19" column="25" selection-start-line="19" selection-start-column="25" selection-end-line="19" selection-end-column="25" />
+              <caret line="19" column="86" lean-forward="true" selection-start-line="19" selection-start-column="86" selection-end-line="19" selection-end-column="86" />
               <folding>
                 <element signature="e#18#33#0" expanded="true" />
               </folding>
@@ -30,8 +30,8 @@
       <file leaf-file-name="functions_webdriver.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/apps/functions_webdriver.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="16" column="66" selection-start-line="16" selection-start-column="66" selection-end-line="16" selection-end-column="66" />
+            <state relative-caret-position="289">
+              <caret line="92" column="26" lean-forward="true" selection-start-line="92" selection-start-column="26" selection-end-line="92" selection-end-column="26" />
               <folding>
                 <element signature="e#1#12#0" expanded="true" />
               </folding>
@@ -88,7 +88,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="182" />
     <option name="y" value="112" />
     <option name="width" value="1013" />
@@ -401,7 +401,7 @@
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
-          <caret line="19" column="25" selection-start-line="19" selection-start-column="25" selection-end-line="19" selection-end-column="25" />
+          <caret line="19" column="86" lean-forward="true" selection-start-line="19" selection-start-column="86" selection-end-line="19" selection-end-column="86" />
           <folding>
             <element signature="e#18#33#0" expanded="true" />
           </folding>
@@ -410,8 +410,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/apps/functions_webdriver.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="16" column="66" selection-start-line="16" selection-start-column="66" selection-end-line="16" selection-end-column="66" />
+        <state relative-caret-position="289">
+          <caret line="92" column="26" lean-forward="true" selection-start-line="92" selection-start-column="26" selection-end-line="92" selection-end-column="26" />
           <folding>
             <element signature="e#1#12#0" expanded="true" />
           </folding>
