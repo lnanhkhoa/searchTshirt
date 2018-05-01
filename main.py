@@ -12,7 +12,7 @@ user = "41201696@hcmut.edu.vn"
 password = "lnak121104"
 accountFacebook = apps.AccountsFacebook(user, password)
 
-textSearch = 'need shirt'
+textSearch = 'i want this shirt'
 functionsWebDriver = apps.FunctionsWebDriver('firefox')
 searchPage = functionsWebDriver.getURL('https://www.facebook.com/')
 functionsWebDriver.login(accountFacebook)
@@ -27,7 +27,8 @@ def main():
     driver = functionsWebDriver.getWebDriver()
     # driver.get("file:///C:/Users/khoa/PycharmProjects/seleniumPython/BrowserResults.html")
     BrowseResultsContainer = driver.find_element_by_id('BrowseResultsContainer')
-    childs = BrowseResultsContainer.find_elements_by_tag_name('img')
+    # childs = BrowseResultsContainer.find_elements_by_tag_name('img')
+    childs = BrowseResultsContainer.find_elements('rel', 'theater')
     # for child in childs:
     #     if(child.size.get('width')>450):
     #         getImage (child.get_attribute('src'), child.id + '.jpg')
@@ -39,5 +40,6 @@ def getBrowseResultsBelowFold():
 
 
 if __name__ == '__main__':
+    print("==========================================")
     functionsWebDriver.getBrowseResultContainer()
     pass

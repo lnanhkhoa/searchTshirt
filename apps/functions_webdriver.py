@@ -1,7 +1,9 @@
 
 import time
 from selenium import webdriver
+from selenium.webdriver import FirefoxProfile, DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
+
 from selenium.common.exceptions import NoSuchElementException
 import proxy_list
 
@@ -9,7 +11,10 @@ class FunctionsWebDriver():
 
     def __init__(self, selectBrowser):
         self.selectBrowser = selectBrowser
-        self.webdriver = webdriver.Firefox()
+        profile = FirefoxProfile()
+        profile.set_preference("permissions.default.desktop-notification", 1)
+        profile.update_preferences()
+        self.webdriver = webdriver.Firefox(firefox_profile=profile)
 
     def login(self, accountFacebook):
         print("Opened facebook")
@@ -73,16 +78,20 @@ class FunctionsWebDriver():
         childsUserContentWrapper = [x for x in BrowseResultsContainer.find_elements_by_class_name('userContentWrapper')]
         for child in childsUserContentWrapper:
             contentpost = child.find_element_by_class_name('userContent')
+            likeCommentContent = child.find_element_by_class_name('commentable_item')
             print (contentpost.text)
             try:
-                listImageURL = [x for x in child.find_elements_by_tag_name('img')]
+                # listImageURL = [x for x in child.find_elements_by_tag_name('img')]
+                listImageURL = [x for x in child.find_elements_by_name('theater')]
                 for image in listImageURL:
-                    if image.size.get('width') > 200:
-                        print( image.get_attribute('src'))
-                like = child.find_element_by_class_name('commentable_item').find_element_by_class_name('_4arz').text
+                #     if image.size.get('width') > 200:
+                        print( image.get_attribute('rel'))
+                like = likeCommentContent.find_element_by_class_name('_4arz').text
+                # commentShare = likeCommentContent.find_elements_by_class_name('_36_q')
             except NoSuchElementException as e:
                 like = '0'
             print ('So like :' + like)
+            print('--------------------')
 
         # for x in range(0, len(childsUserContentWrapper)):
         #     if (x == 0):
