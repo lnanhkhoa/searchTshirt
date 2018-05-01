@@ -12,12 +12,15 @@ user = "41201696@hcmut.edu.vn"
 password = "lnak121104"
 accountFacebook = apps.AccountsFacebook(user, password)
 
+textSearch = 'need shirt'
 functionsWebDriver = apps.FunctionsWebDriver('firefox')
 searchPage = functionsWebDriver.getURL('https://www.facebook.com/')
 functionsWebDriver.login(accountFacebook)
-searchPage = functionsWebDriver.getURL('https://www.facebook.com/search/str/i%20want%20this%20shirt/stories-keyword/today/date/stories/intersect')
+searchPage = functionsWebDriver.getURL('https://www.facebook.com/search/str/' +textSearch +'/stories-keyword/today/date/stories/intersect')
 # searchPage = functionsWebDriver.getURL('file:///D:/Devs/Python/Facebook/seleniumPython/templates/Facebook%20-%20T%C3%ACm%20ki%E1%BA%BFm%20tr%C3%AAn%20Facebook.html')
+print('Load Done')
 functionsWebDriver.loadAllPostSearch()
+print('load All Done')
 # functionsWebDriver.quit()
 
 def main():
@@ -36,5 +39,5 @@ def getBrowseResultsBelowFold():
 
 
 if __name__ == '__main__':
-    # main()
+    functionsWebDriver.getBrowseResultContainer()
     pass

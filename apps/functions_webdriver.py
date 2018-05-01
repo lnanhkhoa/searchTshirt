@@ -68,5 +68,25 @@ class FunctionsWebDriver():
             except NoSuchElementException as e:
                 pass
 
-    def test(self):
-        pass
+    def getBrowseResultContainer(self):
+        BrowseResultsContainer = self.webdriver.find_element_by_id('BrowseResultsContainer')
+        childsUserContentWrapper = [x for x in BrowseResultsContainer.find_elements_by_class_name('userContentWrapper')]
+        for child in childsUserContentWrapper:
+            contentpost = child.find_element_by_class_name('userContent')
+            print (contentpost.text)
+            try:
+                listImageURL = [x for x in child.find_elements_by_tag_name('img')]
+                for image in listImageURL:
+                    if image.size.get('width') > 200:
+                        print( image.get_attribute('src'))
+                like = child.find_element_by_class_name('commentable_item').find_element_by_class_name('_4arz').text
+            except NoSuchElementException as e:
+                like = '0'
+            print ('So like :' + like)
+
+        # for x in range(0, len(childsUserContentWrapper)):
+        #     if (x == 0):
+        #         userContent = childsUserContentWrapper[0].find_elements_by_class_name('userContent')
+        #         print(userContent)
+
+
