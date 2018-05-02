@@ -2,3 +2,4 @@
 geckodriver.log
 img/
 templates/
+apps/__pycache__/
