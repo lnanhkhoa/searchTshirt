@@ -74,29 +74,68 @@ class FunctionsWebDriver():
             except NoSuchElementException as e:
                 pass
 
-    def getBrowseResultContainer(self):
-        BrowseResultsContainer = self.webdriver.find_element_by_id('BrowseResultsContainer')
-        childsUserContentWrapper = [x for x in BrowseResultsContainer.find_elements_by_class_name('userContentWrapper')]
-        for child in childsUserContentWrapper:
-            contentpost = child.find_element_by_class_name('userContent')
-            likeCommentContent = child.find_element_by_class_name('commentable_item')
-            print (contentpost.text)
+    def clickSeeMore(self):
+        listSeeMore = self.webdriver.find_elements_by_class_name('see_more_link')
+        for seeMore in listSeeMore:
+            seeMore.click()
+
+    def getNameContainer(self):
+        count = 0; timeout = 100
+        conditionCount = True
+        listNameContainer = ['BrowseResultsContainer', 'u_ps_0_3_0_browse_result_below_fold']
+        while conditionCount and timeout>1:
+            FindId = "fbBrowseScrollingPagerContainer" + str(count)
+            timeout-=1
             try:
-                # listImageURL = [x for x in child.find_elements_by_tag_name('img')]
-                listImageURL = [x for x in child.find_elements_by_css_selector("a[rel='theater']")]
-                for image in listImageURL:
-                #     if image.size.get('width') > 200:
-                        print( image.get_attribute('href'))
-                like = likeCommentContent.find_element_by_class_name('_4arz').text
-                # commentShare = likeCommentContent.find_elements_by_class_name('_36_q')
+                self.webdriver.find_element_by_id(FindId)
+                listNameContainer.append(FindId)
+                count+=1
+            except NoSuchElementException:
+                conditionCount = False
+        return listNameContainer
+
+
+    def getDataContainer(self, name):
+        try:
+            BrowseResultsContainer = self.webdriver.find_element_by_id(name)
+        except NoSuchElementException:
+            return 0
+        childsUserContentWrapper = BrowseResultsContainer.find_elements_by_class_name('userContentWrapper')
+        for childUserContentWrapper in childsUserContentWrapper:
+            print('<-------------------->')
+            try:
+                contentpost = childUserContentWrapper.find_element_by_class_name('userContent')
+                print(contentpost.text)
             except NoSuchElementException as e:
-                like = '0'
-            print ('So like :' + like)
-            print('--------------------')
+                print(e)
+                print('Empty Content')
+            # Get Image URL
+            listImageURL = childUserContentWrapper.find_elements_by_css_selector("a[rel='theater'][data-render-location='homepage_stream']")
+            if listImageURL.__len__() == 0:
+                print ('Khong co Image')
+                continue
+            for image in listImageURL:
+                print( image.get_attribute('href'))
 
-        # for x in range(0, len(childsUserContentWrapper)):
-        #     if (x == 0):
-        #         userContent = childsUserContentWrapper[0].find_elements_by_class_name('userContent')
-        #         print(userContent)
+            text = ""
+            try:
+                likeCommentContent = childUserContentWrapper.find_element_by_class_name('commentable_item')
+                like = likeCommentContent.find_element_by_class_name('_4arz').text
+                text += like + " like, "
+                commentShares = likeCommentContent.find_elements_by_class_name('_36_q')
+                for commentShare in commentShares:
+                    text += commentShare.text + ' ,'
+                assert isinstance(like, object)
+            except NoSuchElementException as e:
+                text = "None like,comment,share"
+            print(text)
 
+
+    def test(self):
+        self.webdriver.get('https://www.facebook.com/398476790565617/photos/a.398506440562652.1073741828.398476790565617/439017259844903/?type=3')
+        image = self.webdriver.find_element_by_css_selector("a[rel='theater']")
+        image.click()
+        time.sleep(2)
+        bigImage = self.webdriver.find_element_by_class_name('spotlight')
+        print (bigImage.get_attribute('src'))
 

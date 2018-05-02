@@ -12,14 +12,13 @@ user = "41201696@hcmut.edu.vn"
 password = "lnak121104"
 accountFacebook = apps.AccountsFacebook(user, password)
 
-textSearch = 'i want this shirt'
+textSearch = 'i need shirt'
 functionsWebDriver = apps.FunctionsWebDriver('firefox')
 # searchPage = functionsWebDriver.getURL('https://www.facebook.com/')
 # functionsWebDriver.login(accountFacebook)
 # searchPage = functionsWebDriver.getURL('https://www.facebook.com/search/str/' +textSearch +'/stories-keyword/today/date/stories/intersect')
-searchPage = functionsWebDriver.getURL('file:///D:/Devs/Python/Facebook/seleniumPython/templates/1.html')
-print('Load Done')
-functionsWebDriver.loadAllPostSearch()
+searchPage = functionsWebDriver.getURL('file:///D:/Devs/Python/Facebook/seleniumPython/templates/2.html')
+# functionsWebDriver.loadAllPostSearch()
 print('load All Done')
 # functionsWebDriver.quit()
 
@@ -33,6 +32,7 @@ def main():
     #     if(child.size.get('width')>450):
     #         getImage (child.get_attribute('src'), child.id + '.jpg')
 
+
 def getBrowseResultsBelowFold():
     driver = functionsWebDriver.getWebDriver()
     BrowseResultsBelowFold = driver.find_element_by_id('u_ps_0_3_0_browse_result_below_fold')
@@ -40,6 +40,12 @@ def getBrowseResultsBelowFold():
 
 
 if __name__ == '__main__':
+    # functionsWebDriver.clickSeeMore()
     print("==========================================")
-    functionsWebDriver.getBrowseResultContainer()
+    listName = functionsWebDriver.getNameContainer()
+    # for name in listName:
+    #     print('')
+    #     print('!!!===!!!' + name +'!!!===!!!')
+    #     print('')
+    functionsWebDriver.getDataContainer('fbBrowseScrollingPagerContainer1')
     pass
