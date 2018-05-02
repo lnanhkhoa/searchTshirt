@@ -11934,3 +11934,26 @@ Unable to read VR Path Registry from C:\Users\khoa\AppData\Local\openvr\openvrpa
 [Parent 9740, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
 [Child 10368, Chrome_ChildThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
 Unable to read VR Path Registry from C:\Users\khoa\AppData\Local\openvr\openvrpaths.vrpath
+1525283981648	addons.manager	INFO	Skipping background update check
+1525284104608	addons.xpi	DEBUG	Calling bootstrap method shutdown on webcompat@mozilla.org version 1.1
+1525284104608	addons.xpi	DEBUG	Calling bootstrap method shutdown on shield-recipe-client@mozilla.org version 80
+1525284104610	addons.xpi	DEBUG	Calling bootstrap method shutdown on screenshots@mozilla.org version 25.0.0
+1525284104632	addons.xpi	DEBUG	Calling bootstrap method shutdown on onboarding@mozilla.org version 1.0
+1525284104638	addons.xpi	DEBUG	Calling bootstrap method shutdown on formautofill@mozilla.org version 1.0
+1525284104638	addons.xpi	DEBUG	Calling bootstrap method shutdown on followonsearch@mozilla.com version 0.9.6
+1525284104638	addons.xpi	DEBUG	Calling bootstrap method shutdown on firefox@getpocket.com version 1.0.5
+1525284104640	addons.xpi	DEBUG	Calling bootstrap method shutdown on aushelper@mozilla.org version 2.0
+1525284104640	addons.xpi	DEBUG	Calling bootstrap method shutdown on activity-stream@mozilla.org version 2018.02.17.0026-173e2795
+[Parent 9740, Gecko_IOThread] WARNING: pipe error: 109: file z:/build/build/src/ipc/chromium/src/chrome/common/ipc_channel_win.cc, line 346
+[Child 41525284104830	addons.manager	DEBUG	shutdown
+1525284104830	addons.manager	DEBUG	Calling shutdown blocker for XPIProvider
+1525284104830	addons.xpi	DEBUG	shutdown
+1525284104830	addons.xpi-utils	DEBUG	shutdown
+1525284104830	addons.manager	DEBUG	Calling shutdown blocker for LightweightThemeManager
+1525284104830	addons.manager	DEBUG	Calling shutdown blocker for GMPProvider
+1525284104832	addons.manager	DEBUG	Calling shutdown blocker for PluginProvider
+1525284104832	addons.manager	DEBUG	Calling shutdown blocker for PreviousExperimentProvider
+1525284104840	addons.manager	DEBUG	Async provider shutdown done
+
+###!!! [Child][MessageChannel::SendAndWait] Error: Channel error: cannot send/recv
+
