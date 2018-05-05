@@ -3,6 +3,8 @@ import os, time
 import apps
 cur_path = os.path.dirname(__file__)
 
+from selenium.webdriver.common.keys import Keys
+
 # Process Image
 pathImage = 'img'
 processImage = apps.ProcessImage(os.path.join(cur_path, pathImage))
@@ -12,12 +14,12 @@ user = "41201696@hcmut.edu.vn"
 password = "lnak121104"
 accountFacebook = apps.AccountsFacebook(user, password)
 
-textSearch = 'i need shirt'
+textSearch = 'new shirt'
 functionsWebDriver = apps.FunctionsWebDriver('firefox')
-# searchPage = functionsWebDriver.getURL('https://www.facebook.com/')
-# functionsWebDriver.login(accountFacebook)
-# searchPage = functionsWebDriver.getURL('https://www.facebook.com/search/str/' +textSearch +'/stories-keyword/today/date/stories/intersect')
-searchPage = functionsWebDriver.getURL('file:///D:/Devs/Python/Facebook/seleniumPython/templates/2.html')
+searchPage = functionsWebDriver.getURL('https://www.facebook.com/')
+functionsWebDriver.login(accountFacebook)
+searchPage = functionsWebDriver.getURL('https://www.facebook.com/search/str/' +textSearch +'/stories-keyword/today/date/stories/intersect')
+# searchPage = functionsWebDriver.getURL('file:///D:/Devs/Python/Facebook/seleniumPython/templates/0405.html')
 # functionsWebDriver.loadAllPostSearch()
 print('load All Done')
 # functionsWebDriver.quit()
@@ -47,5 +49,5 @@ if __name__ == '__main__':
     #     print('')
     #     print('!!!===!!!' + name +'!!!===!!!')
     #     print('')
-    functionsWebDriver.getDataContainer('fbBrowseScrollingPagerContainer1')
+    functionsWebDriver.getDataContainer(listName[0])
     pass
