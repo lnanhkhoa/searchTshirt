@@ -14,14 +14,14 @@ user = "41201696@hcmut.edu.vn"
 password = "lnak121104"
 accountFacebook = apps.AccountsFacebook(user, password)
 
-textSearch = 'new shirt'
+textSearch = 'i want this shirt'
 functionsWebDriver = apps.FunctionsWebDriver('firefox')
-searchPage = functionsWebDriver.getURL('https://www.facebook.com/')
+functionsWebDriver.getURL('https://www.facebook.com/')
 functionsWebDriver.login(accountFacebook)
 searchPage = functionsWebDriver.getURL('https://www.facebook.com/search/str/' +textSearch +'/stories-keyword/today/date/stories/intersect')
-# searchPage = functionsWebDriver.getURL('file:///D:/Devs/Python/Facebook/seleniumPython/templates/0405.html')
-# functionsWebDriver.loadAllPostSearch()
+functionsWebDriver.loadAllPostSearch()
 print('load All Done')
+# functionsWebDriver.clickSeeMore()
 # functionsWebDriver.quit()
 
 def main():
@@ -42,12 +42,11 @@ def getBrowseResultsBelowFold():
 
 
 if __name__ == '__main__':
-    # functionsWebDriver.clickSeeMore()
     print("==========================================")
     listName = functionsWebDriver.getNameContainer()
-    # for name in listName:
-    #     print('')
-    #     print('!!!===!!!' + name +'!!!===!!!')
-    #     print('')
-    functionsWebDriver.getDataContainer(listName[0])
+    for name in listName:
+        print('')
+        print('!!!===!!!' + name +'!!!===!!!')
+        print('')
+        functionsWebDriver.getDataContainer(name)
     pass
