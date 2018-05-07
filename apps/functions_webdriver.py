@@ -8,13 +8,17 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from apps import ProcessImage
-import proxy_list
-
+from config import DATABASE_CONFIG
 
 # Process Image
-pathImage = 'img'
+pathImage = DATABASE_CONFIG['pathImage']
+treePath = DATABASE_CONFIG['treePath']
+enable_change_proxy = DATABASE_CONFIG['enable_change_proxy']
+proxy_host = DATABASE_CONFIG['proxy_host']
+proxy_port = DATABASE_CONFIG['proxy_port']
+
 cur_path = os.path.dirname(__file__)
-image_path_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), pathImage, "1")
+image_path_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), pathImage, treePath)
 if not os.path.exists(image_path_directory):
     os.makedirs(image_path_directory)
 processImage = ProcessImage(image_path_directory)
@@ -23,24 +27,27 @@ class FunctionsWebDriver:
     def __init__(self, selectBrowser, tinydbInfoAcc):
         self.selectBrowser = selectBrowser
         self.tinydbInfoAcc = tinydbInfoAcc
-        profile = FirefoxProfile()
-        profile.set_preference("permissions.default.desktop-notification", 1)
-        profile.set_preference("browser.download.folderList", 2)
-        profile.set_preference("browser.download.manager.showWhenStarting", False)
-        profile.set_preference("browser.download.dir", image_path_directory)
-        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/xml,text/plain,text/xml,"
+        self.profile: FirefoxProfile = FirefoxProfile()
+        self.profile.set_preference("permissions.default.desktop-notification", 1)
+        self.profile.set_preference("browser.download.folderList", 2)
+        self.profile.set_preference("browser.download.manager.showWhenStarting", False)
+        self.profile.set_preference("browser.download.dir", image_path_directory)
+        self.profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/xml,text/plain,text/xml,"
                                                                          "image/jpeg image/png, text/csv")
-        profile.set_preference("browser.helperApps.neverAsk.openFile","application/xml,text/plain,text/xml,"
+        self.profile.set_preference("browser.helperApps.neverAsk.openFile","application/xml,text/plain,text/xml,"
                                                                       "image/jpeg,image/png, text/csv")
-        profile.set_preference("browser.helperApps.alwaysAsk.force", False)
-        profile.set_preference("browser.download.manager.focusWhenStarting", False)
-        profile.set_preference("browser.download.manager.useWindow", False)
-        profile.set_preference("browser.download.manager.showAlertOnComplete", False)
-        profile.set_preference("browser.download.manager.closeWhenDone", True)
-        profile.update_preferences()
-        self.webdriver = webdriver.Firefox(firefox_profile=profile)
+        self.profile.set_preference("browser.helperApps.alwaysAsk.force", False)
+        self.profile.set_preference("browser.download.manager.focusWhenStarting", False)
+        self.profile.set_preference("browser.download.manager.useWindow", False)
+        self.profile.set_preference("browser.download.manager.showAlertOnComplete", False)
+        self.profile.set_preference("browser.download.manager.closeWhenDone", True)
+        if enable_change_proxy:
+            self.profile = self.changeProxy(proxy_host, proxy_port, self.profile)
+        else:
+            self.profile = self.ClearProxy(self.profile)
+        self.profile.update_preferences()
+        self.webdriver = webdriver.Firefox(firefox_profile=self.profile)
         self.webdriver.maximize_window()
-        # self.webdriver = webdriver.PhantomJS()
         self.actions = ActionChains(self.webdriver)
 
     def login(self, accountFacebook):
@@ -64,27 +71,30 @@ class FunctionsWebDriver:
         return self.webdriver.get(url)
 
     def quit(self):
-        self.webdriver.quit()
+        self.ClearProxy(self.profile)
+        # self.webdriver.quit()
 
     def getWebDriver(self):
         return self.webdriver
 
-    def changeProxy(self, ProxyHost, ProxyPort):
-        "Define Firefox Profile with you ProxyHost and ProxyPort"
-        profile = webdriver.FirefoxProfile()
+    def changeProxy(self, ProxyHost, ProxyPort, profile: object = None):
+        # Define Firefox Profile with you ProxyHost and ProxyPort
+        if profile is None:
+            profile = FirefoxProfile()
         profile.set_preference("network.proxy.type", 1)
         profile.set_preference("network.proxy.http", ProxyHost)
         profile.set_preference("network.proxy.http_port", int(ProxyPort))
         profile.set_preference("network.proxy.ssl", ProxyHost)
         profile.set_preference("network.proxy.ssl_port", int(ProxyPort))
         profile.update_preferences()
-        return webdriver.Firefox(firefox_profile=profile)
+        return profile
 
-    def fixProxy(self):
-        # ""Reset Firefox Profile""
-        profile = webdriver.FirefoxProfile()
+    def ClearProxy(self, profile = None):
+        if profile is None:
+            profile = FirefoxProfile()
         profile.set_preference("network.proxy.type", 0)
-        return webdriver.Firefox(firefox_profile=profile)
+        profile.update_preferences()
+        return profile
 
     @staticmethod
     def _get_name_in_string(string):
@@ -136,8 +146,11 @@ class FunctionsWebDriver:
                 conditionCount = False
         return listNameContainer
 
-    def getMultipleDataImageTheater(self):
-        [url, likes] = self.__get_faster_DataImageTheater__()
+    def getMultipleDataImageTheater(self, type_script):
+        if type_script == 1:
+            [url, likes] = self.__get_faster_DataImageTheater__()
+        else:
+            [url, likes] = self.__get_DataImageTheater__()
         arrayCheckin = []
         arrayCheckin.extend(url)
         conditionOutWhile = True
@@ -145,14 +158,18 @@ class FunctionsWebDriver:
         while conditionOutWhile and count > 0:
             count -= 1
             self.nextImageTheater()
-            [newUrl, likes] = self.__get_faster_DataImageTheater__()
+            if type_script == 1:
+                [newUrl, likes] = self.__get_faster_DataImageTheater__()
+            else:
+                [newUrl, likes] = self.__get_DataImageTheater__()
             # check condition
-            if newUrl in arrayCheckin:
+            if newUrl[0] in arrayCheckin:
                 conditionOutWhile = False
             arrayCheckin.extend(newUrl)
         return [arrayCheckin, likes]
 
     def getDifferentDataImage(self) -> object:
+        print('dac biet')
         arrayURL = []
         wait = WebDriverWait(self.webdriver, 10)
         # elementMultiImage = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[class='_10 _1mlf uiLayer _4-hy _3qw']")))
@@ -162,7 +179,6 @@ class FunctionsWebDriver:
             nameImage = self._get_name_in_string(url)
             processImage.getImageFromURL(url, nameImage)
             arrayURL.append(url)
-
         like = '0'
         return [arrayURL, like]
 
@@ -209,7 +225,7 @@ class FunctionsWebDriver:
         likes = None
         element = wait.until(EC.presence_of_element_located((By.ID, "photos_snowlift")))
         dropdownButton = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "fbPhotoSnowliftDropdownButton")))
-        self.webdriver.execute_script("arguments[0].click();", dropdownButton)
+        dropdownButton.click()
         divDownloadNotHidden = wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.uiContextualLayerPositioner:not(.hidden_elem)")))
         waitDownload = WebDriverWait(divDownloadNotHidden, 10)
@@ -218,8 +234,8 @@ class FunctionsWebDriver:
         if imageUrlsDownload.__len__() == 0:
             url = ''
         else:
-            self.webdriver.execute_script("arguments[0].click();", imageUrlsDownload[0])
             url = imageUrlsDownload[0].get_attribute('href')
+            imageUrlsDownload[0].click()
         likes = '0'
         feedbackElement = wait.until(EC.presence_of_element_located((By.ID, 'fbPhotoSnowliftFeedback')))
         try:
@@ -229,7 +245,6 @@ class FunctionsWebDriver:
         dropdownButton.click()
         return [url, likes]
 
-
     def __get_DataImageTheater__(self):
         try:
             [url, likes] = self.function_for_DataImageTheater()
@@ -237,7 +252,6 @@ class FunctionsWebDriver:
             print(e)
             time.sleep(1)
             [url, likes] = self.function_for_DataImageTheater()
-            self.escapeTheater()
         return [url, likes]
 
     def function_for_faster_DataImageTheater(self):
@@ -269,8 +283,6 @@ class FunctionsWebDriver:
             [url, likes] = self.function_for_faster_DataImageTheater()
         return [url, likes]
 
-
-
     def escapeTheater(self):
         self.press_key_in_page_html(Keys.ESCAPE)
         # Check Complete escape
@@ -283,7 +295,7 @@ class FunctionsWebDriver:
         self.press_key_in_page_html(Keys.ARROW_RIGHT)
         time.sleep(1) # wait load page
 
-    def getDataContainer(self, name):
+    def getDataContainer(self, name: object, type_script: object) -> object:
         try:
             BrowseResultsContainer = self.webdriver.find_element_by_id(name)
         except NoSuchElementException:
@@ -309,7 +321,10 @@ class FunctionsWebDriver:
                 likes = self.getLikeShareinPost(childUserContentWrapper)
                 self._clickFirstImageTheater_(listImageURL[0])
                 try:
-                    [url, likes] = self.__get_faster_DataImageTheater__()
+                    if type_script == 1:
+                        [url, likes] = self.__get_faster_DataImageTheater__()
+                    else:
+                        [url, likes] = self.__get_DataImageTheater__()
                 except TimeoutException as e:
                     [url, likes] = self.getDifferentDataImage()
                 # update likes
@@ -320,22 +335,13 @@ class FunctionsWebDriver:
                 likes = self.getLikeShareinPost(childUserContentWrapper)
                 self._clickFirstImageTheater_(listImageURL[0])
                 try:
-                    [url, like] = self.getMultipleDataImageTheater()
+                    [url, like] = self.getMultipleDataImageTheater(type_script)
                 except TimeoutException as e:
                     [url, like] = self.getDifferentDataImage()
                 self.getLikeShareinPost(childUserContentWrapper)
                 print(url)
                 self.tinydbInfoAcc.insert(contentpost, likes, url)
             self.escapeTheater()
-
-    def test(self):
-        self.webdriver.get(
-            'https://www.facebook.com/398476790565617/photos/a.398506440562652.1073741828.398476790565617/439017259844903/?type=3')
-        image = self.webdriver.find_element_by_css_selector("a[rel='theater']")
-        image.click()
-        time.sleep(2)
-        bigImage = self.webdriver.find_element_by_class_name('spotlight')
-        print(bigImage.get_attribute('src'))
 
     def add_cookie(self):
         pass

@@ -6,4 +6,3 @@ from .functions_webdriver import FunctionsWebDriver
 
 from .sqlite3_infoacc import SQLInfoAcc
 from .tinydb import TinyDBInfoAcc
-

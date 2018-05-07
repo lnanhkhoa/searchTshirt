@@ -2,7 +2,7 @@
 import os, time
 import apps
 import logging
-
+from config import DATABASE_CONFIG
 from apps import FunctionsWebDriver
 
 cur_path = os.path.dirname(__file__)
@@ -17,12 +17,13 @@ tinydbInfoAcc = apps.TinyDBInfoAcc()
 functionsWebDriver = apps.FunctionsWebDriver('firefox', tinydbInfoAcc)
 
 # Information Users Facebook
-user = "voagki27393@piapia.gq"
-password = "qeqeqe123"
+user = DATABASE_CONFIG['username']
+password = DATABASE_CONFIG['password']
 accountFacebook = apps.AccountsFacebook(user, password)
 
-textSearch = 'i want this shirt'
-
+# Scripts
+textSearch = DATABASE_CONFIG['textsearch']
+type_of_run_script = DATABASE_CONFIG['type_of_run_script']
 
 def preprocess():
     functionsWebDriver.getURL('https://www.facebook.com/')
@@ -31,10 +32,7 @@ def preprocess():
         'https://www.facebook.com/search/str/' + textSearch + '/stories-keyword/today/date/stories/intersect')
     functionsWebDriver.loadAllPostSearch()
     print('load All Done')
-
-
-# functionsWebDriver.clickSeeMore()
-# functionsWebDriver.quit()
+    # functionsWebDriver.clickSeeMore()
 
 def databasesShow():
     tinydbInfoAcc.showAll()
@@ -48,8 +46,8 @@ def main():
         print('')
         print('!!!===!!!' + name + '!!!===!!!')
         print('')
-        functionsWebDriver.getDataContainer(name)
-    # functionsWebDriver.getDataContainer(listName[0])
+        functionsWebDriver.getDataContainer(name, type_of_run_script)
+    # functionsWebDriver.getDataContainer('fbBrowseScrollingPagerContainer0', type_of_run_script)
 
 
 def test():
@@ -59,5 +57,6 @@ if __name__ == '__main__':
     start = time.time()
     preprocess()
     main()
+    functionsWebDriver.quit()
     end = time.time()
     print("Script xai het :" + str(end - start))
