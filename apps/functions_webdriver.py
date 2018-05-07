@@ -1,4 +1,4 @@
-import time
+import time, os
 from selenium import webdriver
 from selenium.webdriver import FirefoxProfile, DesiredCapabilities
 from selenium.webdriver.common.by import By
@@ -6,19 +6,41 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
+from apps import ProcessImage
 import proxy_list
 
 
-class FunctionsWebDriver():
+# Process Image
+pathImage = 'img'
+cur_path = os.path.dirname(__file__)
+image_path_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), pathImage, "1")
+if not os.path.exists(image_path_directory):
+    os.makedirs(image_path_directory)
+processImage = ProcessImage(image_path_directory)
+class FunctionsWebDriver:
 
-    def __init__(self, selectBrowser):
+    def __init__(self, selectBrowser, tinydbInfoAcc):
         self.selectBrowser = selectBrowser
+        self.tinydbInfoAcc = tinydbInfoAcc
         profile = FirefoxProfile()
         profile.set_preference("permissions.default.desktop-notification", 1)
+        profile.set_preference("browser.download.folderList", 2)
+        profile.set_preference("browser.download.manager.showWhenStarting", False)
+        profile.set_preference("browser.download.dir", image_path_directory)
+        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/xml,text/plain,text/xml,"
+                                                                         "image/jpeg image/png, text/csv")
+        profile.set_preference("browser.helperApps.neverAsk.openFile","application/xml,text/plain,text/xml,"
+                                                                      "image/jpeg,image/png, text/csv")
+        profile.set_preference("browser.helperApps.alwaysAsk.force", False)
+        profile.set_preference("browser.download.manager.focusWhenStarting", False)
+        profile.set_preference("browser.download.manager.useWindow", False)
+        profile.set_preference("browser.download.manager.showAlertOnComplete", False)
+        profile.set_preference("browser.download.manager.closeWhenDone", True)
         profile.update_preferences()
         self.webdriver = webdriver.Firefox(firefox_profile=profile)
         self.webdriver.maximize_window()
+        # self.webdriver = webdriver.PhantomJS()
         self.actions = ActionChains(self.webdriver)
 
     def login(self, accountFacebook):
@@ -64,18 +86,29 @@ class FunctionsWebDriver():
         profile.set_preference("network.proxy.type", 0)
         return webdriver.Firefox(firefox_profile=profile)
 
+    @staticmethod
+    def _get_name_in_string(string):
+        array = []
+        endname = string.index('?')
+        for x in range(0, len(string)):
+            if string[x] == '/' and x < endname:
+                array.append((endname - x))
+        return string[(endname - min(array) + 1):endname]
+
     def press_key_in_page_html(self, keypress):
-        searchPage = self.webdriver.find_element_by_tag_name('html')
+        wait = WebDriverWait(self.webdriver, 10)
+        searchPage = wait.until(EC.presence_of_element_located((By.TAG_NAME, "html")))
         searchPage.send_keys(keypress)
 
     def loadAllPostSearch(self):
-        searchPage = self.webdriver.find_element_by_tag_name('html')
+        wait = WebDriverWait(self.webdriver, 10)
+        searchPage = wait.until(EC.presence_of_element_located((By.TAG_NAME, "html")))
         stopSendKey = False
         count = 100
         while not stopSendKey or count < 1:
             count -= 1
             searchPage.send_keys(Keys.END)
-            time.sleep(2)
+            time.sleep(1)
             try:
                 endOfResultsElement = searchPage.find_element_by_id('browse_end_of_results_footer')
                 stopSendKey = True
@@ -103,81 +136,43 @@ class FunctionsWebDriver():
                 conditionCount = False
         return listNameContainer
 
-    def getDataContainer(self, name):
-        try:
-            BrowseResultsContainer = self.webdriver.find_element_by_id(name)
-        except NoSuchElementException:
-            return 0
-        childsUserContentWrapper = BrowseResultsContainer.find_elements_by_class_name('userContentWrapper')
-        for childUserContentWrapper in childsUserContentWrapper:
-            print('<-------------------->')
-            # try:
-            #     contentpost = childUserContentWrapper.find_element_by_class_name('userContent')
-            #     print(contentpost.text)
-            # except NoSuchElementException as e:
-            #     print('Empty Content')
-            # Get Image URL
-            listImageURL = childUserContentWrapper.find_elements_by_css_selector(
-                "a[rel='theater'][data-render-location='homepage_stream']")
-            if listImageURL.__len__() == 0:
-                print('Khong co Image')
-                continue
-            if listImageURL.__len__() == 1:
-                self._clickFirstImageTheater_(listImageURL[0])
-                [url, likes] = self.__get_DataImageTheater__()
-                print(url)
-                self.press_key_in_page_html(Keys.ESCAPE)
-                self.getLikeShareinPost(childUserContentWrapper, likes)
-
-            if listImageURL.__len__() > 1:
-                self.getLikeShareinPost(childUserContentWrapper)
-                self.getMultipleDataImageTheater(listImageURL)
-                self.press_key_in_page_html(Keys.ESCAPE)
-
-    def getMultipleDataImageTheater(self, listImageURL):
+    def getMultipleDataImageTheater(self):
+        [url, likes] = self.__get_faster_DataImageTheater__()
         arrayCheckin = []
-        self._clickFirstImageTheater_(listImageURL[0])
-        try:
-            [url, likes] = self.__get_DataImageTheater__()
-            print(url)
-            arrayCheckin.append(url)
-            conditionOutWhile = True
-            count = 50
-            while conditionOutWhile and count > 0:
-                count -= 1
-                self.nextImageTheater()
-                [newUrl, likes] = self.__get_DataImageTheater__()
-                print(newUrl)
-                # check condition
-                if (newUrl in arrayCheckin):
-                    conditionOutWhile = False
-                arrayCheckin.append(newUrl)
-        except TimeoutException as e:
-            #Kieu hien thi khac
-            wait = WebDriverWait(self.webdriver, 10)
-            elementMultiImage = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "_57xn")))
-            allImage = elementMultiImage.find_elements_by_tag_name('img')
-            for image in allImage:
-                print(image.get_attribute('src'))
+        arrayCheckin.extend(url)
+        conditionOutWhile = True
+        count = 50
+        while conditionOutWhile and count > 0:
+            count -= 1
+            self.nextImageTheater()
+            [newUrl, likes] = self.__get_faster_DataImageTheater__()
+            # check condition
+            if newUrl in arrayCheckin:
+                conditionOutWhile = False
+            arrayCheckin.extend(newUrl)
+        return [arrayCheckin, likes]
 
+    def getDifferentDataImage(self) -> object:
+        arrayURL = []
+        wait = WebDriverWait(self.webdriver, 10)
+        # elementMultiImage = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div[class='_10 _1mlf uiLayer _4-hy _3qw']")))
+        allImage = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, "_580_")))
+        for image in allImage:
+            url = image.get_attribute('src')
+            nameImage = self._get_name_in_string(url)
+            processImage.getImageFromURL(url, nameImage)
+            arrayURL.append(url)
 
+        like = '0'
+        return [arrayURL, like]
 
     def getLikeShareinPost(self, childUserContentWrapper, defaultLikes=0):
         try:
             likeCommentContentElement = childUserContentWrapper.find_element_by_class_name('commentable_item')
             textlike = self._getLikeCommentShare(likeCommentContentElement, defaultLikes)
-            print(textlike)
+            return textlike
         except NoSuchElementException as e:
-            print(str(defaultLikes) + " like, comment, share")
-
-    def test(self):
-        self.webdriver.get(
-            'https://www.facebook.com/398476790565617/photos/a.398506440562652.1073741828.398476790565617/439017259844903/?type=3')
-        image = self.webdriver.find_element_by_css_selector("a[rel='theater']")
-        image.click()
-        time.sleep(2)
-        bigImage = self.webdriver.find_element_by_class_name('spotlight')
-        print(bigImage.get_attribute('src'))
+            return '{0} like, comment, share'.format(str(defaultLikes))
 
     def __get_numbers_in_string(self, text):
         number = [int(s) for s in text.split() if s.isdigit()]
@@ -205,24 +200,26 @@ class FunctionsWebDriver():
         return text
 
     def _clickFirstImageTheater_(self, image_element):
-        wait = WebDriverWait(self.webdriver, 10)
-        wait.until(EC.visibility_of(image_element))
-        self.actions.move_to_element(image_element).click(image_element)
-        # image_element.click()
+        self.webdriver.execute_script("arguments[0].scrollIntoView();", image_element)
+        self.webdriver.execute_script("arguments[0].click();", image_element)
+        time.sleep(1)
 
-
-    def __get_DataImageTheater__(self):
+    def function_for_DataImageTheater(self):
         wait = WebDriverWait(self.webdriver, 10)
-        url = likes = None
+        likes = None
         element = wait.until(EC.presence_of_element_located((By.ID, "photos_snowlift")))
         dropdownButton = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "fbPhotoSnowliftDropdownButton")))
-        dropdownButton.click()
+        self.webdriver.execute_script("arguments[0].click();", dropdownButton)
         divDownloadNotHidden = wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, "div.uiContextualLayerPositioner:not(.hidden_elem)")))
         waitDownload = WebDriverWait(divDownloadNotHidden, 10)
         imageUrlsDownload = waitDownload.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "a[data-action-type='download_photo']")))
-        url = imageUrlsDownload.get_attribute('href')
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a[data-action-type='download_photo']")))
+        if imageUrlsDownload.__len__() == 0:
+            url = ''
+        else:
+            self.webdriver.execute_script("arguments[0].click();", imageUrlsDownload[0])
+            url = imageUrlsDownload[0].get_attribute('href')
         likes = '0'
         feedbackElement = wait.until(EC.presence_of_element_located((By.ID, 'fbPhotoSnowliftFeedback')))
         try:
@@ -232,11 +229,113 @@ class FunctionsWebDriver():
         dropdownButton.click()
         return [url, likes]
 
-    def escapeTheater(self, element):
+
+    def __get_DataImageTheater__(self):
         try:
-            element.find_element_by_class_name("_xlt").click()
+            [url, likes] = self.function_for_DataImageTheater()
+        except StaleElementReferenceException as e:
+            print(e)
+            time.sleep(1)
+            [url, likes] = self.function_for_DataImageTheater()
+            self.escapeTheater()
+        return [url, likes]
+
+    def function_for_faster_DataImageTheater(self):
+        wait = WebDriverWait(self.webdriver, 10)
+        likes = None
+        element = wait.until(EC.presence_of_element_located((By.ID, "photos_snowlift")))
+        element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "stageWrapper")))
+        imageUrlsDownload = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "img[class='spotlight']")))
+        if imageUrlsDownload.__len__() == 0:
+            url = ''
+        else:
+            url = imageUrlsDownload[0].get_attribute('src')
+            nameImage = self._get_name_in_string(url)
+            processImage.getImageFromURL(url, nameImage)
+        likes = '0'
+        feedbackElement = wait.until(EC.presence_of_element_located((By.ID, 'fbPhotoSnowliftFeedback')))
+        try:
+            likes = feedbackElement.find_element_by_class_name("_4arz").text
         except:
+            pass
+        return [[url], likes]
+
+    def __get_faster_DataImageTheater__(self):
+        try:
+            [url, likes] = self.function_for_faster_DataImageTheater()
+        except StaleElementReferenceException as e:
+            print(e)
+            time.sleep(2)
+            [url, likes] = self.function_for_faster_DataImageTheater()
+        return [url, likes]
+
+
+
+    def escapeTheater(self):
+        self.press_key_in_page_html(Keys.ESCAPE)
+        # Check Complete escape
+        findEscape = self.webdriver.find_elements_by_class_name("_xlt")
+        findEscape1 = self.webdriver.find_elements_by_class_name("layerCancel")
+        if findEscape.__len__() > 0 or findEscape1.__len__() > 0:
             self.press_key_in_page_html(Keys.ESCAPE)
 
     def nextImageTheater(self):
         self.press_key_in_page_html(Keys.ARROW_RIGHT)
+        time.sleep(1) # wait load page
+
+    def getDataContainer(self, name):
+        try:
+            BrowseResultsContainer = self.webdriver.find_element_by_id(name)
+        except NoSuchElementException:
+            return 0
+        childsUserContentWrapper = BrowseResultsContainer.find_elements_by_class_name('userContentWrapper')
+        for childUserContentWrapper in childsUserContentWrapper:
+            print('<-------------------->')
+            contentpost = ""
+            try:
+                contentpost = childUserContentWrapper.find_element_by_class_name('userContent').text
+            except NoSuchElementException as e:
+                contentpost = 'Empty Content'
+            # Get Image URL
+            listImageURL = childUserContentWrapper.find_elements_by_css_selector(
+                "a[rel='theater'][data-render-location='homepage_stream']")
+            if listImageURL.__len__() == 0:
+                print('Khong co Image')
+                continue
+
+            if listImageURL.__len__() == 1:
+                url = []
+                likes = None
+                likes = self.getLikeShareinPost(childUserContentWrapper)
+                self._clickFirstImageTheater_(listImageURL[0])
+                try:
+                    [url, likes] = self.__get_faster_DataImageTheater__()
+                except TimeoutException as e:
+                    [url, likes] = self.getDifferentDataImage()
+                # update likes
+                print(url)
+                self.tinydbInfoAcc.insert(contentpost, likes, url)
+
+            if listImageURL.__len__() > 1:
+                likes = self.getLikeShareinPost(childUserContentWrapper)
+                self._clickFirstImageTheater_(listImageURL[0])
+                try:
+                    [url, like] = self.getMultipleDataImageTheater()
+                except TimeoutException as e:
+                    [url, like] = self.getDifferentDataImage()
+                self.getLikeShareinPost(childUserContentWrapper)
+                print(url)
+                self.tinydbInfoAcc.insert(contentpost, likes, url)
+            self.escapeTheater()
+
+    def test(self):
+        self.webdriver.get(
+            'https://www.facebook.com/398476790565617/photos/a.398506440562652.1073741828.398476790565617/439017259844903/?type=3')
+        image = self.webdriver.find_element_by_css_selector("a[rel='theater']")
+        image.click()
+        time.sleep(2)
+        bigImage = self.webdriver.find_element_by_class_name('spotlight')
+        print(bigImage.get_attribute('src'))
+
+    def add_cookie(self):
+        pass

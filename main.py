@@ -1,52 +1,63 @@
 #!/usr/bin/python
 import os, time
 import apps
+import logging
+
+from apps import FunctionsWebDriver
+
 cur_path = os.path.dirname(__file__)
+logger = logging.getLogger('myapp')
+hdlr = logging.FileHandler(os.path.join(cur_path, 'log/myapp.log'))
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logger.setLevel(logging.WARNING)
 
-from selenium.webdriver.common.keys import Keys
-
-# Process Image
-pathImage = 'img'
-processImage = apps.ProcessImage(os.path.join(cur_path, pathImage))
+tinydbInfoAcc = apps.TinyDBInfoAcc()
+functionsWebDriver = apps.FunctionsWebDriver('firefox', tinydbInfoAcc)
 
 # Information Users Facebook
-user = "41201696@hcmut.edu.vn"
-password = "lnak121104"
+user = "voagki27393@piapia.gq"
+password = "qeqeqe123"
 accountFacebook = apps.AccountsFacebook(user, password)
 
 textSearch = 'i want this shirt'
-functionsWebDriver = apps.FunctionsWebDriver('firefox')
-functionsWebDriver.getURL('https://www.facebook.com/')
-functionsWebDriver.login(accountFacebook)
-searchPage = functionsWebDriver.getURL('https://www.facebook.com/search/str/' +textSearch +'/stories-keyword/today/date/stories/intersect')
-functionsWebDriver.loadAllPostSearch()
-print('load All Done')
+
+
+def preprocess():
+    functionsWebDriver.getURL('https://www.facebook.com/')
+    functionsWebDriver.login(accountFacebook)
+    searchPage = functionsWebDriver.getURL(
+        'https://www.facebook.com/search/str/' + textSearch + '/stories-keyword/today/date/stories/intersect')
+    functionsWebDriver.loadAllPostSearch()
+    print('load All Done')
+
+
 # functionsWebDriver.clickSeeMore()
 # functionsWebDriver.quit()
 
+def databasesShow():
+    tinydbInfoAcc.showAll()
+
+
 def main():
-    driver = functionsWebDriver.getWebDriver()
-    # driver.get("file:///C:/Users/khoa/PycharmProjects/seleniumPython/BrowserResults.html")
-    BrowseResultsContainer = driver.find_element_by_id('BrowseResultsContainer')
-    # childs = BrowseResultsContainer.find_elements_by_tag_name('img')
-    childs = BrowseResultsContainer.find_elements('rel', 'theater')
-    # for child in childs:
-    #     if(child.size.get('width')>450):
-    #         getImage (child.get_attribute('src'), child.id + '.jpg')
-
-
-def getBrowseResultsBelowFold():
-    driver = functionsWebDriver.getWebDriver()
-    BrowseResultsBelowFold = driver.find_element_by_id('u_ps_0_3_0_browse_result_below_fold')
-    
-
-
-if __name__ == '__main__':
     print("==========================================")
     listName = functionsWebDriver.getNameContainer()
+    len1ist = len(listName)
     for name in listName:
         print('')
-        print('!!!===!!!' + name +'!!!===!!!')
+        print('!!!===!!!' + name + '!!!===!!!')
         print('')
         functionsWebDriver.getDataContainer(name)
+    # functionsWebDriver.getDataContainer(listName[0])
+
+
+def test():
     pass
+
+if __name__ == '__main__':
+    start = time.time()
+    preprocess()
+    main()
+    end = time.time()
+    print("Script xai het :" + str(end - start))
